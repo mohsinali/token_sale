@@ -54,4 +54,28 @@ contract('DappToken', function(accounts){
       assert.equal(balance.toNumber(), 750000, 'deducts the amout from sending account')
     })
   })
+
+
+
+  it("approves tokens for delegated transfer", function(){
+    return DappToken.deployed().then(function(instance){
+      tokenInstance = instance;
+      return tokenInstance.approve.call(accounts[1], 100);
+    }).then(function(success){
+      assert.equal(success, true, 'it returns true');
+      return tokenInstance.approve(accounts[1], 100);
+    }).then(function(receipt){
+      assert.equal(receipt.logs.length, 1, 'triggers one event');
+      assert.equal(receipt.logs[0].event, 'Approval', 'should be the "Approval" event.')
+      assert.equal(receipt.logs[0].args._owner, accounts[0], 'logs the account the tokens are transferred form.')
+      assert.equal(receipt.logs[0].args._spender, accounts[1], 'logs the account the tokens are transferred to');
+      assert.equal(receipt.logs[0].args._value, 100, 'logs the transfer amount');
+
+      return tokenInstance.allowance(accounts[0], accounts[1]);    
+    }).then(function(allowance){
+      assert.equal(allowance.toNumber(), 100, 'stores allowance for delegated transfer');
+    })
+  })
+
+
 })
