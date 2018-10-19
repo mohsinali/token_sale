@@ -38,4 +38,15 @@ contract DappTokenSale {
         // Trigger sell event
         emit Sell(msg.sender, _numberOfTokens);
     }
+
+    function endSale() public {
+        // Require admin
+        require(msg.sender == admin);
+
+        // Transfer the remaining dapp tokens to admin
+        require(tokenContract.transfer(admin, tokenContract.balanceOf(this)));
+        
+        // Destroy contract
+        selfdestruct(admin);
+    }
 }
